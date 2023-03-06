@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css"
+    />
+    <style>
+      :root {
+        --spacing-company: 3rem;
+        --font-weight: 400;
+        --border-radius: 0;
+      }
+
+      /* Typography */
+      h2,
+      h3,
+      hgroup > :last-child {
+        font-weight: 200;
+      }
+
+      small {
+        color: var(--muted-color);
+      }
+
+      /* Header */
+      .hero {
+        background-color: #312e81;
+        background-position: center;
+        background-size: cover;
+      }
+
+      header {
+        padding: var(--spacing-company) 0;
+      }
+
+      header hgroup > :last-child {
+        color: var(--h3-color);
+      }
+
+      header hgroup {
+        margin-bottom: var(--spacing-company);
+      }
+
+      /* Nav */
+      summary[role='link'].contrast:is(
+          [aria-current],
+          :hover,
+          :active,
+          :focus
+        ) {
+        background-color: transparent;
+        color: var(--contrast-hover);
+      }
+
+      /* Main */
+      @media (min-width: 992px) {
+        main .grid {
+          grid-column-gap: var(--spacing-company);
+          grid-template-columns: auto 25%;
+        }
+      }
+
+      form.grid {
+        grid-row-gap: 0;
+      }
+
+      /* Aside nav */
+      aside img {
+        margin-bottom: 0.25rem;
+      }
+
+      aside p {
+        margin-bottom: var(--spacing-company);
+        line-height: 1.25;
+      }
+    </style>
+    <title>Auth with vanilla Javascript</title>
+  </head>
+  <body>
+    <script type="module">
+      import { newCrossidClient } from 'https://unpkg.com/@crossid/crossid-spa-js@0.4.6/dist/index.js'
+      const domain = 'dev1.us.local.crossid.io'
+      const clientId = 'hOqdIuFhWysOb3y5Ytn3WTp5mbWoQmmZ'
+      const redirectUri = 'http://localhost:8001'
+      // const domain = { domain };
+      // const clientId = { client_id };
+      // const redirectUri = { redirect_uri };
+
+      window.onload = async () => {
+        // configure the client
+        const client = await newCrossidClient({
+          domain: 'dev1.us.local.crossid.io',
+          // your oauth2 client_id
+          client_id: 'hOqdIuFhWysOb3y5Ytn3WTp5mbWoQmmZ',
+          authorizationOpts: {
+            // the audience to request access for
+            audience: ['default'],
+            // the scopes to be requested
+            scope: 'customer openid profile email',
+            // where to redirect upon a completion of a successful signin
+            redirect_uri,
+          },
+          cache_type: 'session_storage',
+        })
+
+        const qp = new URLSearchParams(window.location.search)
+        // if we see in URL a code then it means the user was signed in successfully
+        if (qp.has('code')) {
+          // completes the flow
+          await client.handleRedirectCallback()
+          // remove the 'code' query param from URL
+          window.history.replaceState(null, document.title, '/')
+        }
+
+        document.getElementById('login').addEventListener('click', async () => {
+          await client.loginWithRedirect()
+        })
+
+        document
+          .getElementById('logout')
+          .addEventListener('click', async () => {
+            await client.logoutWithRedirect()
+          })
+
+        document
+          .getElementById('signup')
+          .addEventListener('click', async () => {
+            await client.signupWithRedirect()
+          })
+
+        // get user from cache.
+        const user = await client.getUser()
+        if (user) {
+          document.getElementById('login').style.display = 'none'
+          document.getElementById('signup').style.display = 'none'
+          document.getElementById('logout').style.display = 'inline'
+          document.getElementById('profile').innerHTML = `Hi ${user.email}`
+        } else {
+          document.getElementById(
+            'profile'
+          ).innerHTML = `User is not authenticated, please login.`
+          document.getElementById('logout').style.display = 'none'
+        }
+      }
+    </script>
+
+    <!-- Hero -->
+    <div class="hero" data-theme="dark">
+      <nav class="container-fluid">
+        <ul>
+          <li>
+            <a href="./" class="contrast" onclick="event.preventDefault()"
+              ><strong>Brand</strong></a
+            >
+          </li>
+        </ul>
+      </nav>
+      <header class="container">
+        <hgroup>
+          <h1>Welcome</h1>
+          <h2>
+            This is a sample how to integrate Crossid using vanilla Javascript.
+          </h2>
+        </hgroup>
+        <p>
+          <a id="login" href="#" role="button" onclick="event.preventDefault()"
+            >Login</a
+          >
+          <a id="signup" href="#" role="button" onclick="event.preventDefault()"
+            >Signup</a
+          >
+          <a id="logout" href="#" role="button" onclick="event.preventDefault()"
+            >Logout</a
+          >
+        </p>
+      </header>
+    </div>
+    <!-- ./ Hero -->
+
+    <!-- Main -->
+    <main class="container">
+      <div class="grid">
+        <div id="profile" />
+      </div>
+    </main>
+    <!-- ./ Main -->
+
+    <!-- Footer -->
+    <footer class="container">
+      <small
+        ><a href="https://crossid.io">Website</a> •
+        <a href="https://crossid.io/docs">Docs</a> •
+        <a href="https://crossid.io/docs">Blog</a></small
+      >
+    </footer>
+    <!-- ./ Footer -->
+  </body>
+</html>
