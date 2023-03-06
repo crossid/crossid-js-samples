@@ -82,19 +82,16 @@
   <body>
     <script type="module">
       import { newCrossidClient } from 'https://unpkg.com/@crossid/crossid-spa-js@0.4.6/dist/index.js'
-      const domain = 'dev1.us.local.crossid.io'
-      const clientId = 'hOqdIuFhWysOb3y5Ytn3WTp5mbWoQmmZ'
-      const redirectUri = 'http://localhost:8001'
-      // const domain = { domain };
-      // const clientId = { client_id };
-      // const redirectUri = { redirect_uri };
+      const domain = '${{tenant_domain}}'
+      const clientId = '${{client_id}}'
+      const redirectUri = '${{login_redirect_uri}}'
 
       window.onload = async () => {
         // configure the client
         const client = await newCrossidClient({
-          domain: 'dev1.us.local.crossid.io',
+          domain,
           // your oauth2 client_id
-          client_id: 'hOqdIuFhWysOb3y5Ytn3WTp5mbWoQmmZ',
+          client_id,
           authorizationOpts: {
             // the audience to request access for
             audience: ['default'],
