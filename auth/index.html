@@ -31,10 +31,8 @@
             // your oauth2 client_id
             client_id,
             authorizationOpts: {
-              // the audience to request access for
-              audience: ['default'],
               // the scopes to be requested
-              scope: 'customer openid profile email',
+              scope: 'openid profile email',
               // where to redirect upon a completion of a successful login
               redirect_uri,
             },
